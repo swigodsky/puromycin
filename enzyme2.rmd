@@ -1,0 +1,70 @@
+##Effect of Puromycin on the Rate of an Enzymatic Reaction
+###Sarah Wigodsky
+
+##Introduction
+####An experiment was conducted by Treloar in 1974 in which an enzyme was added to a susbtrate.  The enzyme binds to the substrate to enable a reaction to occur.  The concentration of substrate was varied and the reaction rate was measured.  The experiment was conducted 23 times.  The enzyme was treated with Puromycin in the first 12 trials. In the last 11 trials, the enzyme was not treated with Puromycin. The data is stored in the R data frame called Puromycin.  I am interested in determining the effect of adding Puromycin on the rate of the reaction.
+
+#### The data collected is shown below.  
+
+```{r, echo=FALSE}
+prmcn <- read.csv("https://raw.githubusercontent.com/swigodsky/pmcn/master/prmcn.csv")
+prmcn
+```
+####This data shows the substrate concentration in parts per million, the rate of the reaction in counts/min/min, and whether the enzyme was treated with puromycin, which is a protein synthesis inhibitor.
+
+##Summary
+```{r,echo=FALSE}
+summary(prmcn)
+```
+
+####The following scatter plot shows the relationship between the reaction rate and the substrate concentration.
+
+```{r, echo=FALSE}
+library(ggplot2)
+ggplot(prmcn, aes(x=prmcn$conc, y=prmcn$rate)) + geom_point(aes(color=prmcn$state)) + geom_smooth(se=FALSE, aes(color=prmcn$state)) + labs(title = "Reaction Rate as a Function of Concentration of Substrate" , x="Concentration (ppm)", y = "Reaction Rate (counts/min/min)") + scale_color_discrete(name= "State") 
+```
+
+
+####With the exception of the lowest reaction rate for the treated and untreated samples, the samples treated with Puromycin had greater reaction rates than samples at the same concentration that were not treated with Puromycin.
+
+####At low concentrations of substrate, the reaction rate increases linearly with increases in substrate concentration.  However at larger concentrations of substrate, the reaction rate increases slowly with increases in substrate concentration.
+
+
+```{r, echo=FALSE}
+boxplot(prmcn$rate~prmcn$state, colors = c('r','b'), ylab = "Reaction Rate (counts/min/min)", main = "Reaction Rate for Treated and Untreated Samples Boxplot")
+
+
+```
+
+
+####The median reaction rate when the enzyme was treated with Puromycin is greater than the median reaction rate for the samples in which the enzyme was not treated with Puromycin.  In the samples in which the enzyme was treated with Puromycin, the reaction rates are equally spread out in the first and third quartiles.  However the largest reaction rate is closer to the median than the lowest reaction rate.  In the samples untreated with Puromycin, the reaction rates greater than the median are closer to the median value than the reaction rates that are below the median.  Here too, the maximum reaction rate is closer to the median that the minimum reaction rate.  There are no outliers in both the treated and untreated trials.
+
+```{r, echo=FALSE}
+rate_per_conc = prmcn$rate/prmcn$conc
+pr <- cbind(prmcn, rate_per_conc)
+ggplot(data = pr, aes(factor(pr$state), fill = factor(pr$state))) + geom_histogram(aes(x = pr$rate_per_conc), position = 'identity', alpha = 0.5, bins = 10) + labs(x = "Reaction Rate per Concentration", title = "Rate per Concentration Histogram") +  scale_fill_discrete(name= "State") 
+```
+
+
+####The histogram above shows the number of counts of the reaction rates per concentration of susbstrate.  It distinguishes the data based on whether the sample was treated with Puromycin.  Most of the data has lower reaction rates per concentration.  It is challenging to glean meaningful conclusions based on this histogram, as changing the number of bins showed different trends.  The samples that were not treated with Puromycin tend to have lower reaction rates per concentration of substrate than the treated samples.  
+
+
+###A quantitative summary of the untreated and treated samples are below.
+
+## Untreated Samples - Summary
+```{r, echo=FALSE}
+pu_untreated <- subset(prmcn, state=="untreated")
+colnames(pu_untreated) <-c("Concentration", "Rate of Reaction", "State")
+summary(pu_untreated)
+```
+
+##Treated With Puromycin - Summary
+```{r, echo=FALSE}
+
+pu_treated <- subset(prmcn, state=="treated")
+colnames(pu_treated) <-c("Concentration", "Rate of Reaction", "State")
+summary(pu_treated)
+```
+
+##Conclusion
+####Treating the enzyme with Puromycin increased the reaction rate.  This is evident from looking at the scatter plot.  For the same concentration of substrate, the reaction rate was higher when the sample was treated with Puromycin.  There was the greatest variation in reaction rates for the same concentration of substate for both the treated and untreated samples at the lowest concentration of substrate.  Perhaps this is due to the fact that the likelihood of the enzyme binding to the subtrate may have to do with how the enzyme is distributed in the sample since there is not a lot of substrate present.  For the lower concentration of substrate, the rate of the reaction increases linearly as the concentration of substrate is increased.  At a substrate concentration of about .15 ppm, the rate that the reaction rate increases slows down as substrate concentration increases.  However the effect of Puromycin on reaction rate is greater at higher concentrations, where the reaction rate for the samples treated with Puromycin is much greater than that for the untreated samples.  At higher concentrations of substrate, the reaction rate slows down because adding enzyme does not have an appreciable affect on the reaction rate.  When the concentration of substrate is high, it is likely that the locations on the substrate that bind to the enzyme are full.  So adding more substrate without adding more enzyme does not change the reaction rate.
